@@ -98,6 +98,7 @@ export default function Home() {
 
   return (
     <div style={s.page}>
+      <style>{`@media (max-width: 720px) { .dish-img { width: 122px !important; } }`}</style>
       <div style={s.header}>
         <div style={s.shopName}>龙餐馆 <span style={s.halal}>清真</span></div>
         <div style={s.shopSub}>扫码点餐 · 大厨现做</div>
@@ -113,7 +114,7 @@ export default function Home() {
       <div style={s.list}>
         {DISHES.filter(d => d.category === cat).map(d => (
           <div key={d.id} style={s.card}>
-            <img src={d.image} alt={d.name} style={s.dishImg}
+            <img src={d.image} alt={d.name} className="dish-img" style={s.dishImg}
               onError={e => { e.currentTarget.style.display = 'none' }} />
             <div style={s.dishInfo}>
               <div style={s.dishName}>{d.name}</div>
@@ -176,8 +177,8 @@ const s = {
   catBtn: { border: '1px solid #ffc2d1', background: '#fff', color: '#d6336c', borderRadius: 999, padding: '7px 16px', fontSize: 14 },
   catBtnOn: { background: '#ff5c8a', color: '#fff', borderColor: '#ff5c8a' },
   list: { padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 10 },
-  card: { background: '#fff', borderRadius: 14, padding: 12, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(255,92,138,.08)' },
-  dishImg: { width: 72, height: 72, borderRadius: 12, objectFit: 'cover', flexShrink: 0 },
+  card: { background: '#fff', borderRadius: 14, padding: 12, display: 'flex', alignItems: 'stretch', gap: 12, boxShadow: '0 2px 10px rgba(255,92,138,.08)' },
+  dishImg: { width: 168, height: '100%', objectFit: 'contain', flexShrink: 0 },
   dishInfo: { flex: 1, minWidth: 0 },
   dishName: { fontSize: 16, fontWeight: 700 },
   dishDesc: { fontSize: 12, color: '#999', marginTop: 3 },
