@@ -759,8 +759,6 @@ export default function Home() {
         remarkText: remark.trim(),
         orderText: lines.join('\n'),
       })
-      setCopied(false)
-      setSendHint('')
       setCartOpen(false)
       cookActiveRef.current = true
       receiptStartedRef.current = false
