@@ -518,9 +518,6 @@ export default function Home() {
   // cook: null | { phase: 'cooking' | 'done', orderNo, time, items, remarkText, orderText }
   const [cook, setCook] = useState(null)
   const [posterHidden, setPosterHidden] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const [sendHint, setSendHint] = useState('')
-  const [canShare, setCanShare] = useState(false)
 
   const videoRef = useRef(null)
   const basketRef = useRef(null)
@@ -780,52 +777,6 @@ export default function Home() {
     }
   }
 
-  // ---- 把订单发给大厨（复制 / 系统分享，照原版）----
-  function markCopied() {
-    setCopied(true)
-    setSendHint('订单已经复制好啦，打开微信，粘贴发给大厨吧')
-  }
-
-  function copyFallback(text) {
-    const ta = document.createElement('textarea')
-    ta.value = text
-    ta.setAttribute('readonly', '')
-    ta.style.position = 'fixed'
-    ta.style.left = '-9999px'
-    ta.style.top = '0'
-    document.body.appendChild(ta)
-    ta.select()
-    ta.setSelectionRange(0, ta.value.length)
-    let ok = false
-    try { ok = document.execCommand('copy') } catch (e) { ok = false }
-    document.body.removeChild(ta)
-    return ok
-  }
-
-  function copyOrderText() {
-    if (!cook || !cook.orderText) return
-    const text = cook.orderText
-    const fail = () => setSendHint('自动复制没成功，长按下面这段订单文字手动复制，再去微信粘贴发给大厨：\n' + text)
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(markCopied, () => {
-        if (copyFallback(text)) markCopied()
-        else fail()
-      })
-    } else if (copyFallback(text)) {
-      markCopied()
-    } else {
-      fail()
-    }
-  }
-
-  function shareOrder() {
-    if (!cook || !cook.orderText || !navigator.share) return
-    try {
-      const p = navigator.share({ title: '龙餐馆新订单', text: cook.orderText })
-      if (p && p.catch) p.catch(() => {})
-    } catch (e) {}
-  }
-
   function leaveSplash() {
     if (splash !== 'show') return
     primeCookVideo()
@@ -1066,13 +1017,6 @@ export default function Home() {
               ))}
               <div className="row"><span>合计</span><span className="q">满满的爱（无价）</span></div>
               {cook && cook.remarkText && <div className="remark-show">给大厨的话：{cook.remarkText}</div>}
-            </div>
-            <div className="send-order">
-              <button className={`send-btn${copied ? ' copied' : ''}`} onClick={copyOrderText}>
-                {copied ? <><Ic n="i-check" />已复制，去微信粘贴发给我</> : <><Ic n="i-heart-solid" />把订单发给大厨</>}
-              </button>
-              {sendHint && <p className="send-hint">{sendHint}</p>}
-              {canShare && cook && <button className="share-btn" onClick={shareOrder}>用系统分享发送订单</button>}
             </div>
             <div className="done-btns">
               <button className="btn-ghost" onClick={closeCook}>再点几个菜</button>
