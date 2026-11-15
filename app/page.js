@@ -232,7 +232,7 @@ body.no-scroll { overflow: hidden; }
 .dish.picked { border-color: var(--pink); }
 /* 菜图是整盘入镜的横版/方形图：contain 完整显示整盘不裁切，
    空余处用同一张图的虚化版垫底，和深灰大理石台面自然衔接。 */
-.dish .photo { position: relative; flex: none; width: 168px; overflow: hidden; background: #4a4a4e; }
+.dish .photo { position: relative; flex: none; width: 168px; height: 168px; overflow: hidden; background: #4a4a4e; }
 .dish .photo .photo-blur { position: absolute; inset: -18px; width: calc(100% + 36px); height: calc(100% + 36px); object-fit: cover; object-position: center; filter: blur(16px) brightness(0.88); }
 .dish .photo img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
 .dish .photo .heart-pop { position: absolute; z-index: 2; right: 10px; top: 10px; width: 30px; height: 30px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25)); }
@@ -432,7 +432,7 @@ textarea.remark:focus { outline: 3px solid var(--pink-soft); border-color: var(-
   .hero-badge { font-size: 12.5px; padding: 6px 12px; }
   .cover { border-radius: 20px; margin-bottom: 14px; }
   .cover img.main { aspect-ratio: 4 / 3.4; object-position: center 28%; }
-  .dish .photo { width: 122px; }
+  .dish .photo { width: 122px; height: 122px; }
   .dish h3 { font-size: 16.5px; }
   .dish p.desc { font-size: 12.5px; }
   .dish .body { padding: 11px 6px 12px 12px; }
