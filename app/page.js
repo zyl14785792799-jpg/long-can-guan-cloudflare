@@ -3,17 +3,16 @@
 import { useMemo, useState } from 'react'
 import { DISHES, CATEGORIES } from '@/lib/dishes'
 
-// 开场图：把夫妻合照放到 public/couple.jpg 即可显示；没有也行，用粉色渐变兜底
 const COVER = '/couple.jpg'
 
 export default function Home() {
   const [entered, setEntered] = useState(false)
-  const [cart, setCart] = useState({}) // { dishId: qty }
+  const [cart, setCart] = useState({})
   const [remark, setRemark] = useState('')
   const [cat, setCat] = useState('热菜')
   const [showCart, setShowCart] = useState(false)
   const [placing, setPlacing] = useState(false)
-  const [done, setDone] = useState(null) // { order, items }
+  const [done, setDone] = useState(null)
   const [err, setErr] = useState('')
 
   const cartItems = useMemo(
@@ -57,7 +56,6 @@ export default function Home() {
     }
   }
 
-  // —— 开场 ——
   if (!entered) {
     return (
       <div onClick={() => setEntered(true)} style={s.splash}>
@@ -71,7 +69,6 @@ export default function Home() {
     )
   }
 
-  // —— 下单成功：颠勺动画 + 小票 ——
   if (done) {
     return (
       <div style={s.page}>
@@ -79,7 +76,6 @@ export default function Home() {
           <div style={s.shopName}>龙餐馆 <span style={s.halal}>清真</span></div>
         </div>
         <div style={s.cooking}>
-          {/* 把颠勺视频放到 public/chef-toss.mp4 即可播放；没有则显示文字动画 */}
           <video src="/chef-toss.mp4" autoPlay loop muted playsInline poster="/couple.jpg"
             style={s.video} onError={e => { e.currentTarget.style.display = 'none' }} />
           <div style={s.cookingText}>大厨正在火速烹饪</div>
@@ -100,7 +96,6 @@ export default function Home() {
     )
   }
 
-  // —— 菜单 ——
   return (
     <div style={s.page}>
       <div style={s.header}>
@@ -118,7 +113,8 @@ export default function Home() {
       <div style={s.list}>
         {DISHES.filter(d => d.category === cat).map(d => (
           <div key={d.id} style={s.card}>
-            <div style={s.dishImg}>{d.name.slice(0, 1)}</div>
+            <img src={d.image} alt={d.name} style={s.dishImg}
+              onError={e => { e.currentTarget.style.display = 'none' }} />
             <div style={s.dishInfo}>
               <div style={s.dishName}>{d.name}</div>
               <div style={s.dishDesc}>{d.desc}</div>
@@ -181,7 +177,7 @@ const s = {
   catBtnOn: { background: '#ff5c8a', color: '#fff', borderColor: '#ff5c8a' },
   list: { padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 10 },
   card: { background: '#fff', borderRadius: 14, padding: 12, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(255,92,138,.08)' },
-  dishImg: { width: 52, height: 52, borderRadius: 12, background: 'linear-gradient(135deg,#ffe0e9,#ffc2d1)', color: '#d6336c', fontSize: 22, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  dishImg: { width: 72, height: 72, borderRadius: 12, objectFit: 'cover', flexShrink: 0 },
   dishInfo: { flex: 1, minWidth: 0 },
   dishName: { fontSize: 16, fontWeight: 700 },
   dishDesc: { fontSize: 12, color: '#999', marginTop: 3 },
