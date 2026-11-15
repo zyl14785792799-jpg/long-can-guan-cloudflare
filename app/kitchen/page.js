@@ -12,7 +12,7 @@ export default function Kitchen() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const res = await fetch('/api/orders', { cache: 'no-store' })
+      const res = await fetch('https://long-can-guan-vercel.vercel.app/api/orders', { cache: 'no-store' })
       const data = await res.json()
       if (!data.ok) throw new Error('load failed')
       const list = data.orders || []
@@ -35,7 +35,7 @@ export default function Kitchen() {
   }, [fetchOrders])
 
   async function setStatus(id, status) {
-    await fetch('/api/orders', {
+    await fetch('https://long-can-guan-vercel.vercel.app/api/orders', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status }),
