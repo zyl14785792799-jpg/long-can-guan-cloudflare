@@ -233,7 +233,7 @@ body.no-scroll { overflow: hidden; }
 /* 菜图是整盘入镜的横版/方形图：contain 完整显示整盘不裁切，
    空余处用同一张图的虚化版垫底，和深灰大理石台面自然衔接。 */
 .dish .photo { position: relative; flex: none; width: 168px; overflow: hidden; background: #4a4a4e; }
-.dish .photo::before { content: ""; position: absolute; inset: -18px; background-image: var(--dish-img, none); background-size: cover; background-position: center; filter: blur(16px) brightness(0.88); }
+.dish .photo .photo-blur { position: absolute; inset: -18px; width: calc(100% + 36px); height: calc(100% + 36px); object-fit: cover; object-position: center; filter: blur(16px) brightness(0.88); }
 .dish .photo img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
 .dish .photo .heart-pop { position: absolute; z-index: 2; right: 10px; top: 10px; width: 30px; height: 30px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.25)); }
 .dish .body { padding: 13px 8px 14px 15px; display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 0; }
@@ -928,7 +928,8 @@ export default function Home() {
                     const q = cart[d.id] || 0
                     return (
                       <article key={d.id} className={`dish${q > 0 ? ' picked' : ''}`}>
-                        <div className="photo" style={{ '--dish-img': `url(${d.image})` }}>
+                        <div className="photo">
+                          <img className="photo-blur" src={d.image} alt="" aria-hidden="true" />
                           <img src={d.image} alt={d.alt || d.name} loading="lazy" />
                           {d.heart && <svg className="heart-pop" style={{ color: 'var(--pink-deep)' }} aria-hidden="true"><use href="#i-heart-solid" /></svg>}
                         </div>
