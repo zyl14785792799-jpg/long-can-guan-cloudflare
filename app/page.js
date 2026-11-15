@@ -540,7 +540,6 @@ export default function Home() {
 
   useEffect(() => {
     reducedRef.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    setCanShare(!!navigator.share)
     warmCookVideo()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
