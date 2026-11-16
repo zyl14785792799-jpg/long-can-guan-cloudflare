@@ -57,7 +57,7 @@ const CAT_TITLES = { hot: '热菜 · 热气腾腾', veg: '素菜 · 清清爽爽
 const MENU = DISHES.map(d => ({ ...d, cat: CAT_MAP[d.category], ...(ORIG[d.id] || {}) }))
 
 // ---- 原版 CSS（照 index.html <style> 逐字抄，只加了第一行的字体 @import）----
-const CSS = `@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+const CSS = `/* 字体用系统字体，不再从 Google Fonts 加载（微信里打不开它会拖住首屏） */
 :root {
   color-scheme: light;
   --bg: #fff1f6;
@@ -66,7 +66,7 @@ const CSS = `@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&
   --card-soft: #fff7fa;
   --ink: #66263c;
   --ink-soft: #a4526f;
-  --ink-faint: #c0849c;
+  --ink-faint: #9c5c75;
   --pink: #ff6b9d;
   --pink-deep: #ef3e7c;
   --pink-soft: #ffe1ee;
@@ -108,6 +108,8 @@ body {
 }
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
 button, [role="button"], input, textarea { min-height: 2.25rem; }
+:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+::selection { background: var(--pink-soft); color: var(--ink); }
 img { display: block; }
 .display { font-family: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif; font-weight: 400; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 18px 130px; position: relative; }
@@ -212,8 +214,10 @@ body.no-scroll { overflow: hidden; }
   flex: none; display: inline-flex; align-items: center; gap: 6px;
   background: var(--card); border: 2px solid var(--pink-line); color: var(--ink-soft);
   border-radius: 999px; padding: 9px 13px; font-size: 14.5px; font-weight: 700;
-  transition: all 0.18s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
 }
+.cat-btn:hover:not(.active) { border-color: var(--pink); color: var(--pink-deep); }
+.cat-btn:active { transform: scale(0.97); }
 .cat-btn svg { width: 15px; height: 15px; }
 .cat-btn.active { background: var(--pink-deep); border-color: var(--pink-deep); color: #fff; box-shadow: var(--shadow-sm); }
 
@@ -254,13 +258,17 @@ body.no-scroll { overflow: hidden; }
   background: var(--pink-deep); color: #fff;
   box-shadow: var(--shadow-sm); transition: transform 0.12s ease;
 }
+.add-btn:hover { filter: brightness(1.08); }
 .add-btn:active { transform: scale(0.9); }
 .add-btn svg { width: 22px; height: 22px; }
 .stepper { display: inline-flex; align-items: center; gap: 3px; background: var(--pink-soft); border-radius: 999px; padding: 3px; }
 .stepper button {
   width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
   background: var(--card); color: var(--pink-deep); box-shadow: var(--shadow-sm);
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
+.stepper button:hover { filter: brightness(1.04); }
+.stepper button:active { transform: scale(0.9); }
 .stepper button svg { width: 16px; height: 16px; }
 .stepper .qty { min-width: 30px; text-align: center; font-weight: 900; font-size: 16px; }
 .stepper.v { flex-direction: column; gap: 2px; padding: 4px; }
@@ -299,7 +307,10 @@ footer .big { font-size: 16px; color: var(--ink-soft); }
   background: var(--pink-deep); color: #fff; font-weight: 900; font-size: 15.5px;
   border-radius: 999px; padding: 12px 22px; min-height: 46px; flex: none;
   display: inline-flex; align-items: center; gap: 6px;
+  transition: filter 0.15s ease, transform 0.12s ease;
 }
+.cartbar .go-btn:hover { filter: brightness(1.07); }
+.cartbar .go-btn:active { transform: scale(0.97); }
 @media (prefers-color-scheme: dark) { .cartbar .go-btn { background: #fff; color: #ef3e7c; } }
 .cartbar.empty .go-btn { opacity: 0.45; }
 .cartbar.bump { animation: bump 0.35s ease; }
@@ -319,8 +330,10 @@ footer .big { font-size: 16px; color: var(--ink-soft); }
 }
 @keyframes rise { from { transform: translateY(46px); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
 .sheet h2 { margin: 0; font-size: 23px; }
-.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.icon-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--pink-soft); color: var(--pink-deep); display: grid; place-items: center; flex: none; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.icon-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--pink-soft); color: var(--pink-deep); display: grid; place-items: center; flex: none; transition: background-color 0.15s ease, transform 0.12s ease; }
+.icon-btn:hover { background: var(--pink-line); }
+.icon-btn:active { transform: scale(0.94); }
 .icon-btn svg { width: 18px; height: 18px; }
 .cart-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 2px dotted var(--pink-line); }
 .cart-row img { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; flex: none; }
@@ -336,14 +349,18 @@ textarea.remark {
   padding: 12px 14px; font: inherit; font-size: 14.5px; color: var(--ink); resize: vertical; min-height: 64px;
 }
 textarea.remark:focus { outline: 3px solid var(--pink-soft); border-color: var(--pink); }
+textarea.remark::placeholder { color: var(--ink-faint); opacity: 1; }
 .order-btn {
   width: 100%; margin-top: 18px; background: var(--pink-deep); color: #fff;
   font-size: 18px; font-weight: 900; border-radius: 999px; padding: 15px; min-height: 56px;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   box-shadow: var(--shadow);
+  transition: filter 0.15s ease, transform 0.12s ease;
 }
 .order-btn svg { width: 19px; height: 19px; }
-.order-btn:disabled { opacity: 0.45; box-shadow: none; }
+.order-btn:hover:not(:disabled) { filter: brightness(1.05); }
+.order-btn:active:not(:disabled) { transform: scale(0.98); }
+.order-btn:disabled { opacity: 0.45; box-shadow: none; cursor: not-allowed; }
 .total-line { display: flex; justify-content: space-between; align-items: baseline; margin-top: 16px; font-weight: 800; }
 .total-line .amt { color: var(--pink-deep); font-size: 17px; }
 
@@ -378,7 +395,9 @@ textarea.remark:focus { outline: 3px solid var(--pink-soft); border-color: var(-
 .cook-dots i:nth-child(3) { animation-delay: 0.4s; }
 @keyframes dotBlink { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
 .cook-tip { color: var(--ink-faint); font-size: 13.5px; margin-top: 14px; }
-.cook-skip { margin-top: 18px; background: var(--card); border: 2px solid var(--pink-line); color: var(--pink-deep); border-radius: 999px; padding: 12px 22px; font-weight: 900; font-size: 15px; min-height: 48px; }
+.cook-skip { margin-top: 18px; background: var(--card); border: 2px solid var(--pink-line); color: var(--pink-deep); border-radius: 999px; padding: 12px 22px; font-weight: 900; font-size: 15px; min-height: 48px; transition: background-color 0.15s ease, transform 0.12s ease; }
+.cook-skip:hover { background: var(--pink-soft); }
+.cook-skip:active { transform: scale(0.97); }
 
 /* ---------- done view ---------- */
 .done-view { display: none; }
@@ -402,28 +421,12 @@ textarea.remark:focus { outline: 3px solid var(--pink-soft); border-color: var(-
 .ticket .remark-show { font-size: 13.5px; color: var(--ink-soft); background: var(--card-soft); border-radius: 10px; padding: 9px 12px; margin-top: 10px; }
 .done-btns { display: flex; gap: 12px; margin-top: 22px; }
 .done-btns button { flex: 1; border-radius: 999px; padding: 14px; font-weight: 900; font-size: 16px; min-height: 52px; }
-.btn-primary { background: var(--pink-deep); color: #fff; box-shadow: var(--shadow); }
-.btn-ghost { background: var(--card); border: 2px solid var(--pink-line); color: var(--pink-deep); }
-
-/* ---------- send order to chef ---------- */
-.send-order { margin-top: 18px; }
-.send-btn {
-  width: 100%; background: var(--pink-deep); color: #fff;
-  font-size: 18px; font-weight: 900; border-radius: 999px; padding: 16px; min-height: 58px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: var(--shadow);
-}
-.send-btn svg { width: 19px; height: 19px; flex: none; }
-.send-btn.copied { background: var(--mint); color: #0d4d33; }
-.send-hint {
-  margin: 12px 4px 0; font-size: 14.5px; font-weight: 700; color: var(--ink-soft);
-  line-height: 1.7; white-space: pre-line; word-break: break-all;
-}
-.share-btn {
-  margin: 12px auto 0; display: block; background: none; border: none;
-  color: var(--pink-deep); font-size: 14px; font-weight: 800;
-  text-decoration: underline; text-underline-offset: 4px; padding: 6px 10px;
-}
+.btn-primary { background: var(--pink-deep); color: #fff; box-shadow: var(--shadow); transition: filter 0.15s ease, transform 0.12s ease; }
+.btn-ghost { background: var(--card); border: 2px solid var(--pink-line); color: var(--pink-deep); transition: background-color 0.15s ease, transform 0.12s ease; }
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-ghost:hover { background: var(--pink-soft); }
+.btn-ghost:active { transform: scale(0.98); }
 
 @media (max-width: 720px) {
   h1.shop-name { font-size: 54px; margin: 12px 0 4px; }
@@ -541,7 +544,7 @@ export default function Home() {
 
   useEffect(() => {
     reducedRef.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    warmCookVideo()
+    // 视频不在首屏预热：等用户点进店（leaveSplash）或打开购物车（openCart）时再预热，首屏不抢带宽
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
