@@ -378,6 +378,7 @@ textarea.remark:focus { outline: 3px solid var(--pink-soft); border-color: var(-
 .cook-dots i:nth-child(3) { animation-delay: 0.4s; }
 @keyframes dotBlink { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
 .cook-tip { color: var(--ink-faint); font-size: 13.5px; margin-top: 14px; }
+.cook-skip { margin-top: 18px; background: var(--card); border: 2px solid var(--pink-line); color: var(--pink-deep); border-radius: 999px; padding: 12px 22px; font-weight: 900; font-size: 15px; min-height: 48px; }
 
 /* ---------- done view ---------- */
 .done-view { display: none; }
@@ -767,6 +768,8 @@ export default function Home() {
       pushTimer(() => playCookVideo(), 60)
       // 4 秒兜底：视频一直没播起来也开始计时
       pushTimer(() => startReceiptTimer(), 4000)
+      // 8 秒硬上限：不管视频播没播完，下单 8 秒后一定出小票，不再卡住
+      pushTimer(() => showReceipt(), 8000)
     } catch (e) {
       setErr('下单失败，请再试一次')
     } finally {
@@ -1001,6 +1004,7 @@ export default function Home() {
             </div>
             <p className="cook-caption display"><Ic n="i-flame" style={{ color: 'var(--gold)' }} />大厨正在火速烹饪<span className="cook-dots" aria-hidden="true"><i /><i /><i /></span></p>
             <p className="cook-tip">大厨做菜中，请稍等片刻，香味马上就来</p>
+            <button className="cook-skip" onClick={showReceipt}>跳过动画，直接看小票</button>
           </div>
 
           <div className="done-view">
