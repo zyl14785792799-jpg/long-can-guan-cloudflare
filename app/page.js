@@ -278,6 +278,8 @@ body.no-scroll { overflow: hidden; }
 
 /* ---------- footer ---------- */
 footer { position: relative; z-index: 1; text-align: center; margin-top: 54px; padding-bottom: calc(104px + env(safe-area-inset-bottom)); color: var(--ink-faint); font-size: 13.5px; line-height: 2; }
+/* 藏起 Netlify 免费版右下角的 Powered by Netlify 悬浮标（iframe#nl-badge-frame，会盖住去下单按钮） */
+#nl-badge-frame, iframe[title="Powered by Netlify"] { display: none !important; }
 footer .bunny { width: 44px; height: 44px; margin: 0 auto 4px; opacity: 0.9; }
 footer .big { font-size: 16px; color: var(--ink-soft); }
 
