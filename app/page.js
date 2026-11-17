@@ -277,7 +277,7 @@ body.no-scroll { overflow: hidden; }
 .hidden { display: none !important; }
 
 /* ---------- footer ---------- */
-footer { position: relative; z-index: 1; text-align: center; margin-top: 54px; color: var(--ink-faint); font-size: 13.5px; line-height: 2; }
+footer { position: relative; z-index: 1; text-align: center; margin-top: 54px; padding-bottom: calc(104px + env(safe-area-inset-bottom)); color: var(--ink-faint); font-size: 13.5px; line-height: 2; }
 footer .bunny { width: 44px; height: 44px; margin: 0 auto 4px; opacity: 0.9; }
 footer .big { font-size: 16px; color: var(--ink-soft); }
 
