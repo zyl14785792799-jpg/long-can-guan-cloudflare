@@ -843,7 +843,7 @@ export default function Home() {
             <p className="hero-note">菜单上的每一道，都是想做给一个人吃的菜。<br />慢慢挑，挑好了喊大厨开火。</p>
             <div className="hero-chips">
               <span className="chip"><Ic n="i-heart-solid" style={{ color: 'var(--pink-deep)' }} />价格不定 · 用爱支付</span>
-              <span className="chip white"><Ic n="i-star" style={{ color: 'var(--gold)' }} />全场 27 道 · 道道用心</span>
+              <span className="chip white"><Ic n="i-star" style={{ color: 'var(--gold)' }} />全场 28 道 · 道道用心</span>
               <span className="chip white"><Ic n="i-bunny" style={{ color: 'var(--pink)' }} />兔兔老板娘监制</span>
             </div>
           </div>
