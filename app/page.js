@@ -731,50 +731,79 @@ export default function Home() {
     if (cartItems.length === 0 || placing) return
     setPlacing(true)
     setErr('')
+    const cartSnapshot = cartItems
+    const remarkSnapshot = remark
+    let data = null
     try {
-      const res = await fetch('https://long-can-guan-vercel.vercel.app/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: cartItems.map(i => ({ id: i.id, qty: i.qty })),
-          remark,
-        }),
-      })
-      const data = await res.json()
-      if (!data.ok) throw new Error(data.error || '下单失败')
-
-      const now = new Date()
-      const hh = String(now.getHours()).padStart(2, '0')
-      const mm = String(now.getMinutes()).padStart(2, '0')
-      const orderNo = '龙' + String(data.order.id).padStart(4, '0')
-      const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0')
-      const lines = ['龙餐馆新订单', '订单号：' + orderNo, '下单时间：' + dateStr + ' ' + hh + ':' + mm]
-      cartItems.forEach(i => lines.push(i.name + ' × ' + i.qty))
-      lines.push('给厨师的留言：' + (remark.trim() ? remark.trim() : '无'))
-
-      setCook({
-        phase: 'cooking',
-        orderNo,
-        time: hh + ':' + mm,
-        items: cartItems,
-        remarkText: remark.trim(),
-        orderText: lines.join('\n'),
-      })
-      setCartOpen(false)
-      cookActiveRef.current = true
-      receiptStartedRef.current = false
-      setPosterHidden(false)
-      // 下一帧再播（等 overlay 挂上、video 节点就位）
-      pushTimer(() => playCookVideo(), 60)
-      // 4 秒兜底：视频一直没播起来也开始计时
-      pushTimer(() => startReceiptTimer(), 4000)
-      // 8 秒硬上限：不管视频播没播完，下单 8 秒后一定出小票，不再卡住
-      pushTimer(() => showReceipt(), 8000)
+      // 下单请求 10 秒超时：微信里回信丢了也不会一直转圈
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 10000)
+      try {
+        const res = await fetch('https://long-can-guan-vercel.vercel.app/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: cartSnapshot.map(i => ({ id: i.id, qty: i.qty })),
+            remark: remarkSnapshot,
+          }),
+          signal: ctrl.signal,
+        })
+        data = await res.json()
+      } finally {
+        clearTimeout(timer)
+      }
+      if (!data || !data.ok) throw new Error((data && data.error) || '下单失败')
     } catch (e) {
-      setErr('下单失败，请再试一次')
-    } finally {
-      setPlacing(false)
+      // 超时或网络失败：订单可能已经进了后厨，先查一下最近的单，匹配上就当成功，不再重复下单
+      try {
+        const res = await fetch('https://long-can-guan-vercel.vercel.app/api/orders')
+        const list = await res.json()
+        const orders = (list && list.orders) || []
+        const nowMs = Date.now()
+        const found = orders.find(o => {
+          const t = new Date(o.createdAt).getTime()
+          if (isNaN(t) || nowMs - t > 120000) return false
+          const items = o.items || []
+          if (items.length !== cartSnapshot.length) return false
+          return cartSnapshot.every(ci => items.some(it => it.id === ci.id && it.qty === ci.qty))
+        })
+        if (!found) throw e
+        data = { ok: true, order: found }
+      } catch (e2) {
+        setErr('下单失败，请再试一次')
+        setPlacing(false)
+        return
+      }
     }
+
+    const now = new Date()
+    const hh = String(now.getHours()).padStart(2, '0')
+    const mm = String(now.getMinutes()).padStart(2, '0')
+    const orderNo = '龙' + String(data.order.id).padStart(4, '0')
+    const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0')
+    const lines = ['龙餐馆新订单', '订单号：' + orderNo, '下单时间：' + dateStr + ' ' + hh + ':' + mm]
+    cartSnapshot.forEach(i => lines.push(i.name + ' × ' + i.qty))
+    lines.push('给厨师的留言：' + (remarkSnapshot.trim() ? remarkSnapshot.trim() : '无'))
+
+    setCook({
+      phase: 'cooking',
+      orderNo,
+      time: hh + ':' + mm,
+      items: cartSnapshot,
+      remarkText: remarkSnapshot.trim(),
+      orderText: lines.join('\n'),
+    })
+    setCartOpen(false)
+    cookActiveRef.current = true
+    receiptStartedRef.current = false
+    setPosterHidden(false)
+    // 下一帧再播（等 overlay 挂上、video 节点就位）
+    pushTimer(() => playCookVideo(), 60)
+    // 4 秒兜底：视频一直没播起来也开始计时
+    pushTimer(() => startReceiptTimer(), 4000)
+    // 8 秒硬上限：不管视频播没播完，下单 8 秒后一定出小票，不再卡住
+    pushTimer(() => showReceipt(), 8000)
+    setPlacing(false)
   }
 
   function leaveSplash() {
