@@ -278,6 +278,7 @@ body.no-scroll { overflow: hidden; }
 
 /* ---------- footer ---------- */
 footer { position: relative; z-index: 1; text-align: center; margin-top: 54px; padding-bottom: calc(104px + env(safe-area-inset-bottom)); color: var(--ink-faint); font-size: 13.5px; line-height: 2; }
+
 /* 藏起 Netlify 免费版右下角的 Powered by Netlify 悬浮标（iframe#nl-badge-frame，会盖住去下单按钮） */
 #nl-badge-frame, iframe[title="Powered by Netlify"] { display: none !important; }
 footer .bunny { width: 44px; height: 44px; margin: 0 auto 4px; opacity: 0.9; }
@@ -848,7 +849,7 @@ export default function Home() {
             <p className="hero-note">菜单上的每一道，都是想做给一个人吃的菜。<br />慢慢挑，挑好了喊大厨开火。</p>
             <div className="hero-chips">
               <span className="chip"><Ic n="i-heart-solid" style={{ color: 'var(--pink-deep)' }} />价格不定 · 用爱支付</span>
-              <span className="chip white"><Ic n="i-star" style={{ color: 'var(--gold)' }} />全场 27 道 · 道道用心</span>
+              <span className="chip white"><Ic n="i-star" style={{ color: 'var(--gold)' }} />全场 28 道 · 道道用心</span>
               <span className="chip white"><Ic n="i-bunny" style={{ color: 'var(--pink)' }} />兔兔老板娘监制</span>
             </div>
           </div>
