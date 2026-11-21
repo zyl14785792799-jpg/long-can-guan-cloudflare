@@ -727,6 +727,12 @@ export default function Home() {
     setCook(null)
   }
 
+  // fetch 带超时：手机网络一卡请求可能永远不回，没有超时按钮会一直转圈
+  const fetchWithTimeout = (url, options, ms) => {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), ms)
+    return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer))
+  }
   async function placeOrder() {
     if (cartItems.length === 0 || placing) return
     setPlacing(true)
@@ -738,7 +744,7 @@ export default function Home() {
     // 按本次下单的菜和时间找后厨刚下的单：只认点下单之后 2 分钟内下的同款单，不会认成以前的单
     const findRecentOrder = async () => {
       try {
-        const res = await fetch('https://long-can-guan-vercel.vercel.app/api/orders')
+        const res = await fetchWithTimeout('https://long-can-guan-vercel.vercel.app/api/orders', {}, 5000)
         const list = await res.json()
         const orders = (list && list.orders) || []
         const nowMs = Date.now()
@@ -802,14 +808,14 @@ export default function Home() {
       setPlacing(false)
     }, 30000)
     try {
-      const res = await fetch('https://long-can-guan-vercel.vercel.app/api/orders', {
+      const res = await fetchWithTimeout('https://long-can-guan-vercel.vercel.app/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: cartSnapshot.map(i => ({ id: i.id, qty: i.qty })),
           remark: remarkSnapshot,
         }),
-      })
+      }, 10000)
       const data = await res.json()
       if (!data || !data.ok) throw new Error((data && data.error) || '下单失败')
       finishWith(data.order)
