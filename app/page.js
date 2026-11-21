@@ -672,6 +672,8 @@ export default function Home() {
   function playCookVideo() {
     const v = videoRef.current
     if (!v) return
+    // 先停一下再从头播：视频已经在播时 play() 等于没点，playing 事件不触发，海报就一直盖着画面
+    try { v.pause() } catch (e) {}
     if (blobUrlRef.current) {
       applyCookBlob()
       try { v.currentTime = 0 } catch (e) {}
@@ -689,13 +691,13 @@ export default function Home() {
       try { v.currentTime = 0 } catch (e) {}
       tryPlayCook()
     }
-    if (!v.paused && v.readyState >= 2) startReceiptTimer()
+    if (!v.paused && v.readyState >= 2) { setPosterHidden(true); startReceiptTimer() }
     pushTimer(() => {
       if (!cookActiveRef.current) return
       const vv = videoRef.current
       if (!vv) return
       if (vv.paused) tryPlayCook()
-      else startReceiptTimer()
+      else { setPosterHidden(true); startReceiptTimer() }
     }, 700)
   }
 
