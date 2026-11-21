@@ -744,7 +744,7 @@ export default function Home() {
     // 按本次下单的菜和时间找后厨刚下的单：只认点下单之后 2 分钟内下的同款单，不会认成以前的单
     const findRecentOrder = async () => {
       try {
-        const res = await fetchWithTimeout('https://long-can-guan-vercel.vercel.app/api/orders', {}, 5000)
+        const res = await fetchWithTimeout('/api/orders', {}, 5000)
         const list = await res.json()
         const orders = (list && list.orders) || []
         const nowMs = Date.now()
@@ -808,7 +808,7 @@ export default function Home() {
       setPlacing(false)
     }, 30000)
     try {
-      const res = await fetchWithTimeout('https://long-can-guan-vercel.vercel.app/api/orders', {
+      const res = await fetchWithTimeout('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
