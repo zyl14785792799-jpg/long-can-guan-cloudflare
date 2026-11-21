@@ -1,0 +1,6 @@
+# 下单接口走本站同源代理：手机只连 Netlify，不直接连 Vercel（她手机连不上 Vercel，下单会超时失败）
+[[redirects]]
+  from = "/api/orders"
+  to = "https://long-can-guan-vercel.vercel.app/api/orders"
+  status = 200
+  force = true
