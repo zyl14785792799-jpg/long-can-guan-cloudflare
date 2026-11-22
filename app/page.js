@@ -413,6 +413,11 @@ textarea.remark::placeholder { color: var(--ink-faint); opacity: 1; }
 }
 .done-badge svg { width: 46px; height: 46px; color: #fff; }
 @keyframes popIn { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.done-ready {
+  margin: 4px auto 10px; padding: 14px 18px; border-radius: 16px;
+  background: #e6f9ed; border: 2px solid #2f9e44; color: #2b8a3e;
+  font-size: 20px; font-weight: 900; animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 .ticket {
   background: var(--card); border: 2px dashed var(--pink); border-radius: 20px;
   padding: 18px 20px; text-align: left; margin-top: 18px; box-shadow: var(--shadow-sm);
@@ -524,6 +529,7 @@ export default function Home() {
   const [err, setErr] = useState('')
   // cook: null | { phase: 'cooking' | 'done', orderNo, time, items, remarkText, orderText }
   const [cook, setCook] = useState(null)
+  const [orderDone, setOrderDone] = useState(false)
   const [posterHidden, setPosterHidden] = useState(false)
 
   const videoRef = useRef(null)
@@ -732,6 +738,7 @@ export default function Home() {
     const v = videoRef.current
     if (v) v.pause()
     setPosterHidden(false)
+    setOrderDone(false)
     setCook(null)
   }
 
@@ -741,6 +748,25 @@ export default function Home() {
     const timer = setTimeout(() => controller.abort(), ms)
     return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer))
   }
+  // 小票出来后轮询后厨：大厨在后厨一点“做好了”，这边就弹出来
+  useEffect(() => {
+    if (!cook || cook.phase !== 'done' || !cook.orderId) return
+    let stopped = false
+    let timer
+    async function check() {
+      if (stopped) return
+      try {
+        const res = await fetchWithTimeout('/api/orders', {}, 5000)
+        const data = await res.json()
+        const o = ((data && data.orders) || []).find(x => x.id === cook.orderId)
+        if (o && o.status === 'done') { setOrderDone(true); return }
+      } catch (e) {}
+      if (!stopped) timer = setTimeout(check, 5000)
+    }
+    timer = setTimeout(check, 3000)
+    return () => { stopped = true; clearTimeout(timer) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cook && cook.phase, cook && cook.orderId])
   async function placeOrder() {
     if (cartItems.length === 0 || placing) return
     setPlacing(true)
@@ -783,11 +809,13 @@ export default function Home() {
       setCook({
         phase: 'cooking',
         orderNo,
+        orderId: order.id,
         time: hh + ':' + mm,
         items: cartSnapshot,
         remarkText: remarkSnapshot.trim(),
         orderText: lines.join('\n'),
       })
+      setOrderDone(false)
       setCartOpen(false)
       cookActiveRef.current = true
       receiptStartedRef.current = false
@@ -1072,7 +1100,11 @@ export default function Home() {
           <div className="done-view">
             <div className="done-badge"><Ic n="i-check" /></div>
             <h2 className="display">下单成功啦</h2>
-            <p className="cook-status">订单已经送到大厨手里，开火做菜中</p>
+            {orderDone ? (
+              <div className="done-ready">做好了，可以吃了</div>
+            ) : (
+              <p className="cook-status">订单已经送到大厨手里，开火做菜中</p>
+            )}
             <div className="ticket">
               <div className="meta"><span>单号 · {cook ? cook.orderNo : ''}</span><span>下单时间 {cook ? cook.time : ''}</span></div>
               {cook && cook.items.map(i => (
